@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    version="2.5">
+	<display-name>Archetype Created Web Application</display-name>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+	<session-config>
+		<!-- 单位：分 -->
+		<session-timeout>1</session-timeout>
+	</session-config>
+
+	<jsp-config>
+        <taglib>
+            <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+            <taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+
+	<listener>
+		<listener-class>com.demos.listener.SessionListener</listener-class>
+	</listener>
+
+
+	<filter>
+		<filter-name>SessionFilter</filter-name>
+		<filter-class>com.demos.filter.SessionFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>SessionFilter</filter-name>
+		<url-pattern>/queryUserList</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>SessionFilter</filter-name>
+		<url-pattern>/addUser</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>SessionFilter</filter-name>
+		<url-pattern>/updateUser</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>SessionFilter</filter-name>
+		<url-pattern>/deleteUser</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>LoginServlet</servlet-name>
+		<servlet-class>com.demos.web.LoginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>QueryUserServlet</servlet-name>
+		<servlet-class>com.demos.web.QueryUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>QueryUserServlet</servlet-name>
+		<url-pattern>/queryUserList</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AddUserServlet</servlet-name>
+		<servlet-class>com.demos.web.AddUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddUserServlet</servlet-name>
+		<url-pattern>/addUser</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>UpdateUserServlet</servlet-name>
+		<servlet-class>com.demos.web.UpdateUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UpdateUserServlet</servlet-name>
+		<url-pattern>/updateUser</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>DeleteUserServlet</servlet-name>
+		<servlet-class>com.demos.web.DeleteUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DeleteUserServlet</servlet-name>
+		<url-pattern>/deleteUser</url-pattern>
+	</servlet-mapping>
+</web-app>

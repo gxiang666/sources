@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.taotao</groupId>
+		<artifactId>taotao-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<groupId>com.taotao</groupId>
+	<artifactId>taotao-manager</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<!-- 添加依赖 -->
+	<dependencies>
+		<dependency>
+			<groupId>com.taotao</groupId>
+			<artifactId>taotao-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+	</dependencies>
+	<modules>
+	<!-- 注意，（modules只能增，不能删） 删除这个pojo时，删除了文件夹，在这里modules 还必须手动删除，否则其实是没有删除，还会报错 
+			2017-6-10 15:57:21 -->
+	<!-- 这个module 要在tomcat配置之前，否则，起不来，2017-6-15 10:43:22 -->
+		<module>taotao-manager-pojo</module>
+		<module>taotao-manager-dao</module>
+		<module>taotao-manager-Service</module>
+		<module>taotao-manager-web</module>
+	</modules>
+	
+	
+	<!-- 添加tomcat插件 -->
+	<build>
+		<!-- 配置插件 -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<configuration>
+					<port>8081</port>
+					<path>/</path>
+					<url>http://192.168.25.135:8080/manager/text</url>
+					<username>tomcat</username>
+					<password>tomcat</password>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+		
+</project>
