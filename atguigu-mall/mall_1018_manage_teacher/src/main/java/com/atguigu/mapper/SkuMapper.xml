@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.mapper.SkuMapper">
+
+	<insert id="insert_sku" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id" parameterType="com.atguigu.bean.T_MALL_SKU">
+		insert into t_mall_sku(
+		shp_id,
+		kc,
+		jg,
+		sku_mch,
+		kcdz
+		)
+		values
+		(
+		#{shp_id},
+		#{kc},
+		#{jg},
+		#{sku_mch},
+		#{kcdz}
+		)
+	</insert>
+
+	<insert id="insert_sku_av" parameterType="Map">
+		insert into
+		t_mall_sku_attr_value(
+		shxm_id,
+		shxzh_id,
+		shp_id,
+		sku_id
+		)
+		values
+		<foreach collection="list_av" item="av" separator=",">
+			(
+			#{av.shxm_id},
+			#{av.shxzh_id},
+			#{shp_id},
+			#{sku_id}
+			)
+		</foreach>
+	</insert>
+
+
+
+</mapper>

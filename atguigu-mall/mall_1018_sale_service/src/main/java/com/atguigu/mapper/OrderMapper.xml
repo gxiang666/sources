@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.mapper.OrderMapper">
+
+	<select id="select_count_kc" parameterType="int" resultType="long">
+		select count(1) from
+		t_mall_sku where id = #{sku_id} and kc
+		>10
+	</select>
+
+	<select id="select_kc" parameterType="Map" resultType="long">
+		select kc
+		from t_mall_sku
+		where id = #{sku_id}
+		<if test="count==0">
+			for update
+		</if>
+	</select>
+
+
+	<update id="update_kc" parameterType="com.atguigu.bean.T_MALL_ORDER_INFO">
+		update t_mall_sku set kc =
+		kc - #{sku_shl} where id =
+		#{sku_id}
+	</update>
+
+	<delete id="delete_carts" parameterType="Map">
+		delete from t_mall_shoppingCar where id in
+		<foreach collection="list_id" item="id" separator="," open="("
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<update id="update_order" parameterType="com.atguigu.bean.OBJECT_T_MALL_ORDER">
+		update t_mall_order
+		<set>
+			<if test="1==1">
+				jdh = #{jdh},
+			</if>
+			<if test="1==1">
+				yjsdshj = #{yjsdshj}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="update_flow" parameterType="com.atguigu.bean.OBJECT_T_MALL_FLOW">
+		update t_mall_flow
+		<set>
+			<if test="1==1">
+				ywy = #{ywy},
+			</if>
+			<if test="1==1">
+				lxfsh = #{lxfsh},
+			</if>
+			<if test="1==1">
+				psmsh = #{psmsh},
+			</if>
+			<if test="1==1">
+				psshj = #{psshj},
+			</if>
+		</set>
+
+		where id = #{id}
+	</update>
+
+	<insert useGeneratedKeys="true" keyColumn="id" keyProperty="order.id"
+		id="insert_order" parameterType="Map">
+		insert into t_mall_order(
+		shhr,
+		zje,
+		jdh,
+		yh_id,
+		dzh_id,
+		dzh_mch
+		)
+
+		values(
+		#{address.shjr},
+		#{order.zje},
+		#{order.jdh},
+		#{order.yh_id},
+		#{address.id},
+		#{address.yh_dz}
+		)
+	</insert>
+
+	<insert useGeneratedKeys="true" keyColumn="id" keyProperty="flow.id"
+		id="insert_flow" parameterType="Map">
+		insert into t_mall_flow(
+		psfsh,
+		yh_id,
+		dd_id,
+		mqdd,
+		mdd
+		)
+		values(
+		#{flow.psfsh},
+		#{flow.yh_id},
+		#{dd_id},
+		#{flow.mqdd},
+		#{flow.mdd}
+		)
+	</insert>
+
+	<insert id="insert_infos" parameterType="Map">
+		insert into
+		t_mall_order_info(
+		dd_id,
+		sku_id,
+		sku_mch,
+		shp_tp,
+		sku_jg,
+		sku_shl,
+		sku_kcdz,
+		flow_id,
+		gwch_id
+		)
+		values
+
+		<foreach collection="list_info" item="info" separator=",">
+			(
+			#{dd_id},
+			#{info.sku_id},
+			#{info.sku_mch},
+			#{info.shp_tp},
+			#{info.sku_jg},
+			#{info.sku_shl},
+			#{info.sku_kcdz},
+			#{flow_id},
+			#{info.gwch_id}
+			)
+		</foreach>
+	</insert>
+
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+               http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+
+	<context:property-placeholder location="classpath:ws.properties" />
+	<!-- 1、包扫描 -->
+	<context:component-scan base-package="com.atguigu.controller"
+		use-default-filters="false">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+
+	<!-- 2、视图解析器 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!-- 3、SpringMVC上传文件时，需要配置MultipartResolver处理器 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<!-- 指定所上传文件的总大小,单位字节。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+		<property name="maxUploadSize" value="10240000" />
+	</bean>
+
+	<!-- 4、启动注解 -->
+	<mvc:annotation-driven />
+	<mvc:default-servlet-handler />
+
+
+
+	<!-- jsm消息工厂 -->
+	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://localhost:61616" />
+	</bean>
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<!--产生JMS Connection的ConnectionFactory -->
+		<property name="targetConnectionFactory" ref="targetConnectionFactory" />
+	</bean>
+
+	<bean id="loginServerInf" class="com.atguigu.util.MyWsFactoryBean">
+		<property name="url" value="${login_url}"></property>
+		<property name="t" value="com.atguigu.server.LoginServerInf"></property>
+	</bean>
+
+	<bean id="addressServerInf" class="com.atguigu.util.MyWsFactoryBean">
+		<property name="url" value="${address_url}"></property>
+		<property name="t" value="com.atguigu.server.AddressServerInf"></property>
+	</bean>
+
+
+	<bean id="testServerInf" class="com.atguigu.util.MyWsFactoryBean">
+		<property name="url" value="${test_url}"></property>
+		<property name="t" value="com.atguigu.server.TestServerInf"></property>
+	</bean>
+
+	<!-- 执行消息任务的模板 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+	<bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="queue" />
+	</bean>
+	<bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="topic" />
+	</bean>
+
+
+	<!-- 1 应用 -->
+	<dubbo:application name="sale1018_client" />
+
+	<!-- 2 注册中心地址 -->
+	<dubbo:registry protocol="zookeeper" address="192.168.222.6:2181" />
+
+	<!-- 3 需要引用的接口服务 -->
+
+	<dubbo:reference id="listServiceInf"
+		interface="com.atguigu.service.ListServiceInf" />
+	<dubbo:reference id="attrServiceInf"
+		interface="com.atguigu.service.AttrServiceInf" />
+	<dubbo:reference timeout="300000" id="cartServiceInf"
+		interface="com.atguigu.service.CartServiceInf" />
+	<dubbo:reference id="itemServiceInf"
+		interface="com.atguigu.service.ItemServiceInf" />
+	<dubbo:reference id="orderServiceInf"
+		interface="com.atguigu.service.OrderServiceInf" />
+
+
+
+
+</beans>

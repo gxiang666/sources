@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.PaymentMapper">
+  <resultMap id="BaseResultMap" type="com.atguigu.entity.Payment">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="trade_no" jdbcType="VARCHAR" property="tradeNo" />
+    <result column="total_fee" jdbcType="VARCHAR" property="totalFee" />
+    <result column="subject" jdbcType="VARCHAR" property="subject" />
+    <result column="body" jdbcType="VARCHAR" property="body" />
+    <result column="submit_url" jdbcType="VARCHAR" property="submitUrl" />
+    <result column="return_param" jdbcType="VARCHAR" property="returnParam" />
+    <result column="notify_param" jdbcType="VARCHAR" property="notifyParam" />
+    <result column="busi_return_url" jdbcType="VARCHAR" property="busiReturnUrl" />
+    <result column="busi_notify_url" jdbcType="VARCHAR" property="busiNotifyUrl" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="submit_time" jdbcType="VARCHAR" property="submitTime" />
+    <result column="return_time" jdbcType="VARCHAR" property="returnTime" />
+    <result column="notify_time" jdbcType="VARCHAR" property="notifyTime" />
+    <result column="finish_time" jdbcType="VARCHAR" property="finishTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, trade_no,total_fee, subject, body, submit_url, return_param, notify_param, busi_return_url, 
+    busi_notify_url, status, submit_time, return_time, notify_time, finish_time
+  </sql>
+  <select id="selectByExample" parameterType="com.atguigu.entity.PaymentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from t_payment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_payment
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByTradeNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_payment
+    where trade_no = #{tradeNo,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_payment
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.atguigu.entity.PaymentExample">
+    delete from t_payment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.atguigu.entity.Payment">
+    insert into t_payment (id, trade_no, subject, 
+      body, submit_url, return_param, 
+      notify_param, busi_return_url, busi_notify_url, 
+      status, submit_time, return_time, 
+      notify_time, finish_time)
+    values (#{id,jdbcType=BIGINT}, #{tradeNo,jdbcType=VARCHAR}, #{subject,jdbcType=VARCHAR}, 
+      #{body,jdbcType=VARCHAR}, #{submitUrl,jdbcType=VARCHAR}, #{returnParam,jdbcType=VARCHAR}, 
+      #{notifyParam,jdbcType=VARCHAR}, #{busiReturnUrl,jdbcType=VARCHAR}, #{busiNotifyUrl,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{submitTime,jdbcType=VARCHAR}, #{returnTime,jdbcType=VARCHAR}, 
+      #{notifyTime,jdbcType=VARCHAR}, #{finishTime,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.atguigu.entity.Payment">
+    insert into t_payment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tradeNo != null">
+        trade_no,
+      </if>
+      <if test="totalFee != null">
+        total_fee,
+      </if>
+      <if test="subject != null">
+        subject,
+      </if>
+      <if test="body != null">
+        body,
+      </if>
+      <if test="submitUrl != null">
+        submit_url,
+      </if>
+      <if test="returnParam != null">
+        return_param,
+      </if>
+      <if test="notifyParam != null">
+        notify_param,
+      </if>
+      <if test="busiReturnUrl != null">
+        busi_return_url,
+      </if>
+      <if test="busiNotifyUrl != null">
+        busi_notify_url,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="submitTime != null">
+        submit_time,
+      </if>
+      <if test="returnTime != null">
+        return_time,
+      </if>
+      <if test="notifyTime != null">
+        notify_time,
+      </if>
+      <if test="finishTime != null">
+        finish_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tradeNo != null">
+        #{tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFee != null">
+        #{totalFee,jdbcType=DECIMAL},
+      </if>
+      <if test="subject != null">
+        #{subject,jdbcType=VARCHAR},
+      </if>
+      <if test="body != null">
+        #{body,jdbcType=VARCHAR},
+      </if>
+      <if test="submitUrl != null">
+        #{submitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="returnParam != null">
+        #{returnParam,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyParam != null">
+        #{notifyParam,jdbcType=VARCHAR},
+      </if>
+      <if test="busiReturnUrl != null">
+        #{busiReturnUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="busiNotifyUrl != null">
+        #{busiNotifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="submitTime != null">
+        #{submitTime,jdbcType=VARCHAR},
+      </if>
+      <if test="returnTime != null">
+        #{returnTime,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyTime != null">
+        #{notifyTime,jdbcType=VARCHAR},
+      </if>
+      <if test="finishTime != null">
+        #{finishTime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.atguigu.entity.PaymentExample" resultType="java.lang.Long">
+    select count(*) from t_payment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update t_payment
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tradeNo != null">
+        trade_no = #{record.tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.subject != null">
+        subject = #{record.subject,jdbcType=VARCHAR},
+      </if>
+      <if test="record.body != null">
+        body = #{record.body,jdbcType=VARCHAR},
+      </if>
+      <if test="record.submitUrl != null">
+        submit_url = #{record.submitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.returnParam != null">
+        return_param = #{record.returnParam,jdbcType=VARCHAR},
+      </if>
+      <if test="record.notifyParam != null">
+        notify_param = #{record.notifyParam,jdbcType=VARCHAR},
+      </if>
+      <if test="record.busiReturnUrl != null">
+        busi_return_url = #{record.busiReturnUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.busiNotifyUrl != null">
+        busi_notify_url = #{record.busiNotifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.submitTime != null">
+        submit_time = #{record.submitTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.returnTime != null">
+        return_time = #{record.returnTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.notifyTime != null">
+        notify_time = #{record.notifyTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.finishTime != null">
+        finish_time = #{record.finishTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update t_payment
+    set id = #{record.id,jdbcType=BIGINT},
+      trade_no = #{record.tradeNo,jdbcType=VARCHAR},
+      subject = #{record.subject,jdbcType=VARCHAR},
+      body = #{record.body,jdbcType=VARCHAR},
+      submit_url = #{record.submitUrl,jdbcType=VARCHAR},
+      return_param = #{record.returnParam,jdbcType=VARCHAR},
+      notify_param = #{record.notifyParam,jdbcType=VARCHAR},
+      busi_return_url = #{record.busiReturnUrl,jdbcType=VARCHAR},
+      busi_notify_url = #{record.busiNotifyUrl,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      submit_time = #{record.submitTime,jdbcType=VARCHAR},
+      return_time = #{record.returnTime,jdbcType=VARCHAR},
+      notify_time = #{record.notifyTime,jdbcType=VARCHAR},
+      finish_time = #{record.finishTime,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.atguigu.entity.Payment">
+    update t_payment
+    <set>
+      <if test="tradeNo != null">
+        trade_no = #{tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="subject != null">
+        subject = #{subject,jdbcType=VARCHAR},
+      </if>
+      <if test="body != null">
+        body = #{body,jdbcType=VARCHAR},
+      </if>
+      <if test="submitUrl != null">
+        submit_url = #{submitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="returnParam != null">
+        return_param = #{returnParam,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyParam != null">
+        notify_param = #{notifyParam,jdbcType=VARCHAR},
+      </if>
+      <if test="busiReturnUrl != null">
+        busi_return_url = #{busiReturnUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="busiNotifyUrl != null">
+        busi_notify_url = #{busiNotifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="submitTime != null">
+        submit_time = #{submitTime,jdbcType=VARCHAR},
+      </if>
+      <if test="returnTime != null">
+        return_time = #{returnTime,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyTime != null">
+        notify_time = #{notifyTime,jdbcType=VARCHAR},
+      </if>
+      <if test="finishTime != null">
+        finish_time = #{finishTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByTradeNoSelective" parameterType="com.atguigu.entity.Payment">
+    update t_payment
+    <set>
+      <if test="tradeNo != null">
+        trade_no = #{tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFee != null">
+        total_fee = #{totalFee,jdbcType=DECIMAL},
+      </if>
+      <if test="subject != null">
+        subject = #{subject,jdbcType=VARCHAR},
+      </if>
+      <if test="body != null">
+        body = #{body,jdbcType=VARCHAR},
+      </if>
+      <if test="submitUrl != null">
+        submit_url = #{submitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="returnParam != null">
+        return_param = #{returnParam,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyParam != null">
+        notify_param = #{notifyParam,jdbcType=VARCHAR},
+      </if>
+      <if test="busiReturnUrl != null">
+        busi_return_url = #{busiReturnUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="busiNotifyUrl != null">
+        busi_notify_url = #{busiNotifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="submitTime != null">
+        submit_time = #{submitTime,jdbcType=VARCHAR},
+      </if>
+      <if test="returnTime != null">
+        return_time = #{returnTime,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyTime != null">
+        notify_time = #{notifyTime,jdbcType=VARCHAR},
+      </if>
+      <if test="finishTime != null">
+        finish_time = #{finishTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where trade_no = #{tradeNo,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.atguigu.entity.Payment">
+    update t_payment
+    set trade_no = #{tradeNo,jdbcType=VARCHAR},
+      subject = #{subject,jdbcType=VARCHAR},
+      body = #{body,jdbcType=VARCHAR},
+      submit_url = #{submitUrl,jdbcType=VARCHAR},
+      return_param = #{returnParam,jdbcType=VARCHAR},
+      notify_param = #{notifyParam,jdbcType=VARCHAR},
+      busi_return_url = #{busiReturnUrl,jdbcType=VARCHAR},
+      busi_notify_url = #{busiNotifyUrl,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      submit_time = #{submitTime,jdbcType=VARCHAR},
+      return_time = #{returnTime,jdbcType=VARCHAR},
+      notify_time = #{notifyTime,jdbcType=VARCHAR},
+      finish_time = #{finishTime,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

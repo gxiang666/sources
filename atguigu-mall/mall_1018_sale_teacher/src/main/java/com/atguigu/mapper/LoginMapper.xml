@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.mapper.LoginMapper">
+
+	<select id="select_user" parameterType="com.atguigu.bean.T_MALL_USER_ACCOUNT"
+		resultType="com.atguigu.bean.T_MALL_USER_ACCOUNT">
+		select * from t_mall_user_account where yh_mch = #{yh_mch}
+		and yh_mm = #{yh_mm}
+	</select>
+
+
+
+
+</mapper>

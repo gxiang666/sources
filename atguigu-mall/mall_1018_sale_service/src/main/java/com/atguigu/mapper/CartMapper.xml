@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.mapper.CartMapper">
+
+	<select id="select_cart_exists" parameterType="com.atguigu.bean.T_MALL_SHOPPINGCAR"
+		resultType="int">
+		select count(1) from t_mall_shoppingCar where sku_id =
+		#{sku_id} and yh_id = #{yh_id}
+	</select>
+
+	<select id="select_list_cart_by_user" parameterType="com.atguigu.bean.T_MALL_USER_ACCOUNT"
+		resultType="com.atguigu.bean.T_MALL_SHOPPINGCAR">
+		select * from t_mall_shoppingCar where yh_id = #{id}
+	</select>
+
+	<insert id="insert_cart" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id" parameterType="com.atguigu.bean.T_MALL_SHOPPINGCAR">
+		insert into
+		t_mall_shoppingCar(
+		sku_mch,
+		sku_jg,
+		tjshl,
+		hj,
+		yh_id,
+		shp_id,
+		sku_id,
+		shp_tp,
+		kcdz
+		)
+		values
+		(
+		#{sku_mch},
+		#{sku_jg},
+		#{tjshl},
+		#{hj},
+		#{yh_id},
+		#{shp_id},
+		#{sku_id},
+		#{shp_tp},
+		#{kcdz}
+		)
+	</insert>
+
+	<update id="update_cart" parameterType="com.atguigu.bean.T_MALL_SHOPPINGCAR">
+		update t_mall_shoppingCar
+		<set>
+			<if test="tjshl!=0">
+				tjshl = #{tjshl},
+			</if>
+			<if test="hj!=0">
+				hj = #{hj},
+			</if>
+			<if test="shfxz!=null and shfxz!=''">
+				shfxz = #{shfxz},
+			</if>
+		</set>
+		where sku_id = #{sku_id}
+		<if test="yh_id!=0">
+			and yh_id = #{yh_id}
+		</if>
+	</update>
+
+</mapper>

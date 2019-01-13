@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.mapper.ItemMapper">
+
+	<select id="select_skuList_by_spu" parameterType="int"
+		resultType="com.atguigu.bean.T_MALL_SKU">
+		select * from t_mall_sku where shp_id = #{spu_id}
+	</select>
+
+	<select id="select_detail_sku" parameterType="Map"
+		resultMap="select_detail_sku_map">
+		SELECT
+		sku.id as sku_id,
+		spu.id as spu_id,
+		img.id as img_id,
+		attr.shxm_mch as shxm_mch,
+		CONCAT(val.shxzh,val.shxzh_mch) as
+		shxzh_mch,
+		sku.*,spu.*,img.*
+		FROM
+		t_mall_sku sku,
+		t_mall_product spu,
+		t_mall_product_image img,
+		t_mall_attr attr,
+		t_mall_value val,
+		t_mall_sku_attr_value av
+		WHERE
+		sku.shp_id = spu.Id
+		AND spu.Id =
+		img.shp_id
+		AND sku.Id = av.sku_id
+		AND av.shxm_id = attr.Id
+		AND
+		av.shxzh_id = val.Id
+		and sku.Id = #{sku_id}
+
+	</select>
+
+
+	<resultMap autoMapping="true" type="com.atguigu.bean.DETAIL_T_MALL_SKU"
+		id="select_detail_sku_map">
+		<id column="sku_id" property="id" />
+
+		<association property="spu" javaType="com.atguigu.bean.T_MALL_PRODUCT"
+			autoMapping="true">
+			<id column="spu_id" property="id" />
+		</association>
+		<collection property="list_image"
+			ofType="com.atguigu.bean.T_MALL_PRODUCT_IMAGE" autoMapping="true">
+			<id column="img_id" property="id" />
+		</collection>
+		<collection property="list_av_name" ofType="com.atguigu.bean.OBJECT_AV_NAME"
+			autoMapping="true">
+		</collection>
+
+	</resultMap>
+</mapper>
