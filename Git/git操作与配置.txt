@@ -31,6 +31,14 @@
 	先切换到主干   git  checkout  master
 	git  merge  <分支名>
 
+git config --global user.name "gxiang666"
+git config --global user.email "1528357474@qq.com"
+git  remote  add  origin  https://github.com/user111/Helloworld.git
+git  push  origin  master
+git  clone  https://github.com/user111/Helloworld.git   hello_world
+git pull origin  master
+
+
 
 在Eclipse中忽略特定的文件
 	官方文件地址：  https://github.com/github/gitignore/blob/master/Java.gitignoreJava.gitignore
