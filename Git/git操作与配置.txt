@@ -34,6 +34,8 @@
 git config --global user.name "gxiang666"
 git config --global user.email "1528357474@qq.com"
 git  remote  add  origin  https://github.com/user111/Helloworld.git
+git add .
+git commit -m "init yml"
 git  push  origin  master
 git  clone  https://github.com/user111/Helloworld.git   hello_world
 git pull origin  master
