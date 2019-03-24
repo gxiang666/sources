@@ -78,7 +78,17 @@ git pull origin  master
 		[core]
 			excludesfile = C:/Users/熊高祥/Java.gitignore
 
-解决无法pull的问题
+解决Eclipse中无法pull的问题:添加下面没有的东西
+   在User Setting中:
+   	[user]
+		name = gxiang666
+		email = 1528357474@qq.com
+	[core]
+		excludesfile = C:/Users/GaoXiang/Java.gitignore
+	[http]
+		sslVerify = false
+
+   在Repository Setting中：
 	[core]
 		symlinks = false
 		repositoryformatversion = 0
