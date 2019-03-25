@@ -1,3 +1,13 @@
+压缩： gzip  2019_03_25_182426.sql 2019_03_25_182426.sql.gz
+解压： gunzip 2019_03_25_182426.sql.gz
+
+打包：tar -zcvf 2019_03_25_182426.tar.gz 2019_03_25_182426
+解包：tar -zxvf 2019_03_25_182426.tar.gz 
+
+mysql的备份数据库的指令:
+ mysqldump -u${DB_USER} -p${DB_PWD} --host=$HOST $DATABASE > $BACKUP/$DATETIME/$DATATIME.sql
+ mysqldump -u${DB_USER} -p${DB_PWD} --host=$HOST $DATABASE | gzip > $BACKUP/$DATETIME/$DATATIME.sql.gz
+
 crond任务调度：
   crontab -e: 编辑crontab定时任务
   crontab -l: 查询crontab任务列表
