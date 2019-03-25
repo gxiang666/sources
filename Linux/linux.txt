@@ -1,4 +1,4 @@
 crond任务调度：
   crontab -e: 编辑crontab定时任务
   crontab -l: 查询crontab任务列表
-  crontab -r: 删除所有crontab任务
+  crontab -r: 终止所有crontab任务
