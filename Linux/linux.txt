@@ -2,8 +2,18 @@ crond任务调度：
   crontab -e: 编辑crontab定时任务
   crontab -l: 查询crontab任务列表
   crontab -r: 终止所有crontab任务
-  
-  
+ 
+ 
+ [] 条件判断，距离括号的左右必须有一个空格，if的关键字必须和空格有一个空格
+ #!/bin/bash
+ 
+if [ "100" = "100" ]
+then
+        echo "equal"
+fi
+
+ 
+ 
 字符串比较 = 
 大于 -gt (greater than) 
 小于 -lt (less than) 
