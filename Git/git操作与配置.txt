@@ -40,6 +40,10 @@ git commit -m "init yml"
 git  push origin  master
 git  clone  https://github.com/user111/Helloworld.git   hello_world
 git pull origin  master
+git add --all .
+git add .
+
+
 
 创建SSH Key： ssh-keygen -t rsa -C   1528357474@qq.com
 测试连通性：ssh -T git@github.com
