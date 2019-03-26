@@ -40,7 +40,8 @@ git  push  origin  master
 git  clone  https://github.com/user111/Helloworld.git   hello_world
 git pull origin  master
 
-
+创建SSH Key： ssh-keygen -t rsa -C   1528357474@qq.com
+测试连通性：ssh -T git@github.com
 
 在Eclipse中忽略特定的文件
 	官方文件地址：  https://github.com/github/gitignore/blob/master/Java.gitignoreJava.gitignore
