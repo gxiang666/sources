@@ -1,0 +1,70 @@
+压缩： gzip  2019_03_25_182426.sql 2019_03_25_182426.sql.gz
+解压： gunzip 2019_03_25_182426.sql.gz
+
+打包：tar -zcvf 2019_03_25_182426.tar.gz 2019_03_25_182426
+解包：tar -zxvf 2019_03_25_182426.tar.gz 
+
+mysql的备份数据库的指令:
+ mysqldump -u${DB_USER} -p${DB_PWD} --host=$HOST $DATABASE > $BACKUP/$DATETIME/$DATATIME.sql
+ mysqldump -u${DB_USER} -p${DB_PWD} --host=$HOST $DATABASE | gzip > $BACKUP/$DATETIME/$DATATIME.sql.gz
+
+crond任务调度：
+  crontab -e: 编辑crontab定时任务
+  crontab -l: 查询crontab任务列表
+  crontab -r: 终止所有crontab任务
+ 
+ 
+ [] 条件判断，距离括号的左右必须有一个空格，if的关键字必须和空格有一个空格
+ #!/bin/bash
+ 
+if [ "100" = "100" ]
+then
+        echo "equal"
+fi
+
+ 
+ 
+字符串比较 = 
+大于 -gt (greater than) 
+小于 -lt (less than) 
+大于或等于 -ge (greater than or equal) 
+等于 -eq(equal)
+小于或等于 -le (less than or equal) 
+不相等 -ne （not equal）
+
+
+
+#!/bin/bash
+
+#完成数据库的备份
+BACKUP=/data/backup/db
+DATETIME=$(date +%Y_%m_%d_%H%M%S)
+#可以输出变量调试
+#echo ${DATETIME}
+
+echo "=========开始备份========"
+echo "=========备份的路径是 $BACKUP/$DATATIME.tar.gz"
+
+#主机
+HOST=localhost
+#用户名
+DB_USER=root
+#密码
+DB_PWD=root
+#备份的数据库名
+DATABASE=trace
+#创建备份的路径
+#如果备份的路径文件夹存在，就使用，不存在就创建
+[ ! -d "$BACKUP/$DATETIME" ] && mkdir -p "$BACKUP/$DATETIME"
+#执行mysql的备份数据库的指令
+mysqldump -u${DB_USER} -p${DB_PWD} --host=$HOST $DATABASE | gzip > $BACKUP/$DATETIME/$DATETIME.sql.gz
+#打包备份文件
+cd $BACKUP
+tar -zcvf $DATETIME.tar.gz $DATETIME
+#删除临时目录
+rm -rf $BACKUP/$DATETIME
+
+#删除10天前的备份文件
+find $BACKUP -mtime +10 -name "*.tar.gz" exec rm -rf {} \;
+echo "============备份文件成功"
+

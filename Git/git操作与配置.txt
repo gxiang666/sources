@@ -34,11 +34,22 @@
 git config --global user.name "gxiang666"
 git config --global user.email "1528357474@qq.com"
 git  remote  add  origin  https://github.com/user111/Helloworld.git
+git  push -u origin  master:第一次push,加上-u
 git add .
 git commit -m "init yml"
-git  push  origin  master
+git  push origin  master
 git  clone  https://github.com/user111/Helloworld.git   hello_world
 git pull origin  master
+git add --all .
+git add .
+
+
+
+创建SSH Key： ssh-keygen -t rsa -C   1528357474@qq.com
+测试连通性：ssh -T git@github.com
+git remote add  originssh  git@github.com:gxiang666/Django_file.git
+git push originssh master
+git pull originssh master
 
 
 
@@ -78,7 +89,17 @@ git pull origin  master
 		[core]
 			excludesfile = C:/Users/熊高祥/Java.gitignore
 
-解决无法pull的问题
+解决Eclipse中无法pull的问题:添加下面没有的东西
+   在User Setting中:
+   	[user]
+		name = gxiang666
+		email = 1528357474@qq.com
+	[core]
+		excludesfile = C:/Users/GaoXiang/Java.gitignore
+	[http]
+		sslVerify = false
+
+   在Repository Setting中：
 	[core]
 		symlinks = false
 		repositoryformatversion = 0
