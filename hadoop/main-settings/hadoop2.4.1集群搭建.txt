@@ -1,0 +1,367 @@
+hadoop2.0已经发布了稳定版本了，增加了很多特性，比如HDFS HA、YARN等。最新的hadoop-2.7.2又增加了YARN HA
+
+注意：apache提供的hadoop-2.7.2的安装包是在32位操作系统编译的，因为hadoop依赖一些C++的本地库，
+所以如果在64位的操作上安装hadoop-2.7.2就需要重新在64操作系统上重新编译
+（建议第一次安装用32位的系统，我将编译好的64位的也上传到群共享里了，如果有兴趣的可以自己编译一下）
+
+1\在vmware中更改了虚拟机的网络类型，--->NAT方式，（虚拟交换机的ip可以从vmvare的edit-->vertual network editor看到）
+2、根据这个交换机（网关）的地址，来设置我们的客户端windown7的ip（Vmnet8这块网卡）
+3、启动linux主机,修改linux系统的ip地址（通过图形界面修改），修改完成之后在terminal（命令行终端）中切换到root用户执行命令重启网络服务来让ip生效
+4/修改主机名： 在root身份下，用命令修改  vi /etc/sysconfig/network   把hostname改为  yun-10-1
+5/添加主机名和ip的映射  在root身份下 vi /etc/hosts  添加一行 192.168.2.100	yun-10-1
+6/讲hadoop这个用户添加到sudoers里面去  在root身份下 vi /etc/sudoers  ，在文件中找到 root  ALL=ALL ALL ，下面加一行hadoop的
+7/停止防火墙服务   在root身份下 service iptables stop
+8、关闭防火墙的自动启动   在root身份下   chkconfig iptables off
+9、reboot
+10/用ping命令检测一下windows主机和linux服务器之间的网络连通性
+11、进入linux修改图形界面启动配置，不要再启动图形界面了，在root身份下，  vi /etc/inittab  将其改为id:3:initdefault:
+12/再次reboot，将不会启动到图形界面了 
+（当以后你想启动图形界面的时候可以在命令行下敲startx (init 5) ，在图形界面下你想关闭图形界面，敲命令init 3）
+
+
+
+前期准备就不详细说了，课堂上都介绍了
+1.修改Linux主机名
+	
+2.修改IP
+3.修改主机名和IP的映射关系
+	######注意######如果你们公司是租用的服务器或是使用的云主机（如华为用主机、阿里云主机等）
+	/etc/hosts里面要配置的是内网IP地址和主机名的映射关系	
+4.关闭防火墙
+5.ssh免登陆	
+	1/无密登陆的配置
+	首先在客户端生成密钥对   ssh-keygen  -t rsa  紧接着一直回车
+	然后在客户端拷贝公钥到远程   ssh-copy-id desthost
+
+6.安装JDK，配置环境变量等
+
+集群规划：
+	主机名		IP				安装的软件					运行的进程
+	hadoop101	192.168.209.101	jdk、hadoop					NameNode、DFSZKFailoverController(zkfc)
+	hadoop102	192.168.209.102	jdk、hadoop					NameNode、DFSZKFailoverController(zkfc)
+	hadoop103	192.168.209.103	jdk、hadoop					ResourceManager
+	hadoop104	192.168.209.104	jdk、hadoop					ResourceManager
+	hadoop105	192.168.209.105	jdk、hadoop、zookeeper		DataNode、NodeManager、JournalNode、QuorumPeerMain
+	hadoop106	192.168.209.106	jdk、hadoop、zookeeper		DataNode、NodeManager、JournalNode、QuorumPeerMain
+	hadoop107	192.168.209.107	jdk、hadoop、zookeeper		DataNode、NodeManager、JournalNode、QuorumPeerMain
+	
+说明：
+	1.在hadoop2.0中通常由两个NameNode组成，一个处于active状态，另一个处于standby状态。Active NameNode对外提供服务，而Standby NameNode则不对外提供服务，仅同步active namenode的状态，以便能够在它失败时快速进行切换。
+	hadoop2.0官方提供了两种HDFS HA的解决方案，一种是NFS，另一种是QJM。这里我们使用简单的QJM。在该方案中，主备NameNode之间通过一组JournalNode同步元数据信息，一条数据只要成功写入多数JournalNode即认为写入成功。通常配置奇数个JournalNode
+	这里还配置了一个zookeeper集群，用于ZKFC（DFSZKFailoverController）故障转移，当Active NameNode挂掉了，会自动切换Standby NameNode为standby状态
+	2.hadoop-2.2.0中依然存在一个问题，就是ResourceManager只有一个，存在单点故障，hadoop-2.7.2解决了这个问题，有两个ResourceManager，一个是Active，一个是Standby，状态由zookeeper进行协调
+安装步骤：
+	1.安装配置zooekeeper集群（在hadoop105上）
+		1.1解压
+			tar -zxvf zookeeper-3.4.6.tar.gz -C /weekend/
+		1.2修改配置
+			cd /home/gaoxiang/app/zookeeper-3.4.6/conf/
+			cp zoo_sample.cfg zoo.cfg
+			vim zoo.cfg
+			修改：dataDir=/home/gaoxiang/app/zookeeper-3.4.6/data
+			在最后添加：
+			server.1=hadoop105:2888:3888
+			server.2=hadoop106:2888:3888
+			server.3=hadoop107:2888:3888
+			保存退出
+			然后创建一个data文件夹
+			mkdir /home/gaoxiang/app/zookeeper-3.4.6/data
+			再创建一个空文件
+			touch /home/gaoxiang/app/zookeeper-3.4.6/data/myid
+			最后向该文件写入ID
+			echo 1 > /weekend/zookeeper-3.4.6/tmp/myid
+		1.3将配置好的zookeeper拷贝到其他节点(首先分别在hadoop106、hadoop107根目录下创建一个weekend目录：mkdir /weekend)
+			scp -r /weekend/zookeeper-3.4.6/ hadoop106:/weekend/
+			scp -r /weekend/zookeeper-3.4.6/ hadoop107:/weekend/
+			
+			注意：修改hadoop106、hadoop107对应/weekend/zookeeper-3.4.6/tmp/myid内容
+			hadoop106：
+				echo 2 >/home/gaoxiang/app/zookeeper-3.4.6/data/myid
+			hadoop107：
+				echo 3 >/home/gaoxiang/app/zookeeper-3.4.6/data/myid
+	
+	2.安装配置hadoop集群（在hadoop101上操作）
+		2.1解压
+			tar -zxvf hadoop-2.7.2.tar.gz -C /weekend/
+		2.2配置HDFS（hadoop2.0所有的配置文件都在$HADOOP_HOME/etc/hadoop目录下）
+			#将hadoop添加到环境变量中
+			vim /etc/profile
+			export JAVA_HOME=/home/gaoxiang/app/jdk1.8.0_144
+			export HADOOP_HOME=/weekend/hadoop-2.7.2
+			export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin
+			
+			#hadoop2.0的配置文件全部在$HADOOP_HOME/etc/hadoop下
+			cd /home/gaoxiang/app/hadoop-2.7.2/etc/hadoop
+			
+			2.2.1修改hadoo-env.sh
+				export JAVA_HOME=/home/gaoxiang/app/jdk1.7.0_55
+				
+			2.2.2修改core-site.xml
+				<configuration>
+					<!-- 指定hdfs的nameservice为ns1,两个namenode组成一个nameservice -->
+					<property>
+							<name>fs.defaultFS</name>
+							<value>hdfs://ns1/</value>
+					</property>
+					<!-- 指定hadoop临时目录 -->
+					<property>
+							<name>hadoop.tmp.dir</name>
+							<value>/home/gaoxiang/app/hadoop-2.7.2/temp</value>
+					</property>
+
+					<!-- 指定zookeeper地址 -->
+					<property>
+							<name>ha.zookeeper.quorum</name>
+							<value>hadoop105:2181,hadoop106:2181,hadoop107:2181</value>
+					</property>
+				</configuration>
+
+				
+			2.2.3修改hdfs-site.xml
+				<configuration>
+					<!--指定hdfs的nameservice为ns1，需要和core-site.xml中的保持一致 -->
+					<property>
+						<name>dfs.nameservices</name>
+						<value>ns1</value>
+					</property>
+					<!-- ns1下面有两个NameNode，分别是nn1，nn2 -->
+					<property>
+						<name>dfs.ha.namenodes.ns1</name>
+						<value>nn1,nn2</value>
+					</property>
+					<!-- nn1的RPC通信地址 -->
+					<property>
+						<name>dfs.namenode.rpc-address.ns1.nn1</name>
+						<value>hadoop101:9000</value>
+					</property>
+					<!-- nn1的http通信地址 -->
+					<property>
+						<name>dfs.namenode.http-address.ns1.nn1</name>
+						<value>hadoop101:50070</value>
+					</property>
+					<!-- nn2的RPC通信地址 -->
+					<property>
+						<name>dfs.namenode.rpc-address.ns1.nn2</name>
+						<value>hadoop102:9000</value>
+					</property>
+					<!-- nn2的http通信地址 -->
+					<property>
+						<name>dfs.namenode.http-address.ns1.nn2</name>
+						<value>hadoop102:50070</value>
+					</property>
+					<!-- 指定NameNode的元数据在JournalNode上的存放位置 -->
+					<property>
+						<name>dfs.namenode.shared.edits.dir</name>
+						<value>qjournal://hadoop105:8485;hadoop106:8485;hadoop107:8485/ns1</value>
+					</property>
+					<!-- 指定JournalNode在本地磁盘存放数据的位置 -->
+					<property>
+						<name>dfs.journalnode.edits.dir</name>
+						<value>/home/gaoxiang/app/hadoop-2.7.2/journaldata</value>
+					</property>
+					<!-- 开启NameNode失败自动切换 -->
+					<property>
+						<name>dfs.ha.automatic-failover.enabled</name>
+						<value>true</value>
+					</property>
+					<!-- 配置失败自动切换实现方式 -->
+					<property>
+						<name>dfs.client.failover.proxy.provider.ns1</name>
+						<value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+					</property>
+					<!-- 配置隔离机制方法，多个机制用换行分割，即每个机制暂用一行-->
+					<property>
+						<name>dfs.ha.fencing.methods</name>
+						<value>
+							sshfence
+							shell(/bin/true)
+						</value>
+					</property>
+					<!-- 使用sshfence隔离机制时需要ssh免登陆 -->
+					<property>
+						<name>dfs.ha.fencing.ssh.private-key-files</name>
+						<value>/home/gaoxiang/.ssh/id_rsa</value>
+					</property>
+					<!-- 配置sshfence隔离机制超时时间 -->
+					<property>
+						<name>dfs.ha.fencing.ssh.connect-timeout</name>
+						<value>30000</value>
+					</property>
+				</configuration>
+			
+			2.2.4修改mapred-site.xml
+				cp mapred-site.xml.template  mapred-site.xml
+
+				<configuration>
+					<!-- 指定mr框架为yarn方式 -->
+					<property>
+						<name>mapreduce.framework.name</name>
+						<value>yarn</value>
+					</property>
+				</configuration>	
+			
+			2.2.5修改yarn-site.xml
+				<configuration>
+						<!-- 开启RM高可用 -->
+						<property>
+						   <name>yarn.resourcemanager.ha.enabled</name>
+						   <value>true</value>
+						</property>
+						<!-- 指定RM的cluster id -->
+						<property>
+						   <name>yarn.resourcemanager.cluster-id</name>
+						   <value>yrc</value>
+						</property>
+						<!-- 指定RM的名字 -->
+						<property>
+						   <name>yarn.resourcemanager.ha.rm-ids</name>
+						   <value>rm1,rm2</value>
+						</property>
+						<!-- 分别指定RM的地址 -->
+						<property>
+						   <name>yarn.resourcemanager.hostname.rm1</name>
+						   <value>hadoop103</value>
+						</property>
+						<property>
+						   <name>yarn.resourcemanager.hostname.rm2</name>
+						   <value>hadoop104</value>
+						</property>
+						<!-- 指定zk集群地址 -->
+						<property>
+						   <name>yarn.resourcemanager.zk-address</name>
+						   <value>hadoop105:2181,hadoop106:2181,hadoop107:2181</value>
+						</property>
+						<property>
+						   <name>yarn.nodemanager.aux-services</name>
+						   <value>mapreduce_shuffle</value>
+						</property>
+				</configuration>
+			
+				
+			2.2.6修改slaves(slaves是指定子节点的位置，因为要在hadoop101上启动HDFS、在hadoop103启动yarn，所以hadoop101上的slaves文件指定的是datanode的位置，hadoop103上的slaves文件指定的是nodemanager的位置)
+				hadoop105
+				hadoop106
+				hadoop107
+
+			2.2.7配置免密码登陆
+				#首先要配置hadoop101到hadoop102、hadoop103、hadoop104、hadoop105、hadoop106、hadoop107的免密码登陆
+				#在hadoop101上生产一对钥匙
+				ssh-keygen -t rsa
+				#将公钥拷贝到其他节点，包括自己
+				ssh-coyp-id hadoop101
+				ssh-coyp-id hadoop102
+				ssh-coyp-id hadoop103
+				ssh-coyp-id hadoop104
+				ssh-coyp-id hadoop105
+				ssh-coyp-id hadoop106
+				ssh-coyp-id hadoop107
+				ssh-copy-id hadoop104
+				#配置hadoop103到hadoop104、hadoop105、hadoop106、hadoop107的免密码登陆
+				#在hadoop103上生产一对钥匙
+				ssh-keygen -t rsa
+				#将公钥拷贝到其他节点
+				ssh-coyp-id hadoop104
+				ssh-coyp-id hadoop105
+				ssh-coyp-id hadoop106
+				ssh-coyp-id hadoop107
+				#注意：两个namenode之间要配置ssh免密码登陆，别忘了配置hadoop102到hadoop101的免登陆
+				在hadoop102上生产一对钥匙
+				ssh-keygen -t rsa
+				ssh-coyp-id -i hadoop101				
+		
+		2.4将配置好的hadoop拷贝到其他节点
+			这是在跟目录下
+			scp -r /weekend/ hadoop102:/
+			scp -r /weekend/ hadoop103:/
+			scp -r /weekend/hadoop-2.7.2/ hadoop@hadoop104:/weekend/
+			scp -r /weekend/hadoop-2.7.2/ hadoop@hadoop105:/weekend/
+			scp -r /weekend/hadoop-2.7.2/ hadoop@hadoop106:/weekend/
+			scp -r /weekend/hadoop-2.7.2/ hadoop@hadoop107:/weekend/
+		###注意：严格按照下面的步骤
+		2.5启动zookeeper集群（分别在hadoop105、hadoop106、tcast07上启动zk）
+			/home/gaoxiang/app/zookeeper-3.4.6/bin/zkServer.sh start
+			cd /weekend/zookeeper-3.4.6/bin/
+			./zkServer.sh start
+			#查看状态：一个leader，两个follower
+			./zkServer.sh status
+			
+		2.6启动journalnode（分别在在hadoop105、hadoop106、tcast07上执行）
+			cd /weekend/hadoop-2.7.2
+			sbin/hadoop-daemon.sh start journalnode
+			#运行jps命令检验，hadoop105、hadoop106、hadoop107上多了JournalNode进程
+		
+		2.7格式化HDFS
+			#在hadoop101上执行命令:
+			hdfs namenode -format
+			#格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/weekend/hadoop-2.7.2/tmp，然后将/weekend/hadoop-2.7.2/tmp拷贝到hadoop102的/weekend/hadoop-2.7.2/下。
+			scp -r tmp/ hadoop102:/home/gaoxiang/app/hadoop-2.7.2/
+			##也可以这样，建议hdfs namenode -bootstrapStandby
+		
+		2.8格式化ZKFC(在hadoop101上执行即可)
+			hdfs zkfc -formatZK
+		
+		2.9启动HDFS(在hadoop101上执行)
+			sbin/start-dfs.sh
+
+		2.10启动YARN(#####注意#####：是在hadoop103上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)
+			sbin/start-yarn.sh
+			无法启动hadoop104的ResourceManager:手动启动
+				========
+
+		
+	到此，hadoop-2.7.2配置完毕，可以统计浏览器访问:
+		http://192.168.209.101:50070
+		NameNode 'hadoop101:9000' (active)
+		http://192.168.209.102:50070
+		NameNode 'hadoop102:9000' (standby)
+	
+	验证HDFS HA
+		首先向hdfs上传一个文件
+		hadoop fs -put /etc/profile /profile
+		hadoop fs -ls /
+		然后再kill掉active的NameNode
+		kill -9 <pid of NN>
+		通过浏览器访问：http://192.168.209.102:50070
+		NameNode 'hadoop102:9000' (active)
+		这个时候hadoop102上的NameNode变成了active
+		在执行命令：
+		hadoop fs -ls /
+		-rw-r--r--   3 root supergroup       1926 2014-02-06 15:36 /profile
+		刚才上传的文件依然存在！！！
+		手动启动那个挂掉的NameNode
+		sbin/hadoop-daemon.sh start namenode
+		通过浏览器访问：http://192.168.209.101:50070
+		NameNode 'hadoop101:9000' (standby)
+	
+	验证YARN：
+		运行一下hadoop提供的demo中的WordCount程序：
+		hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.1.jar wordcount /profile /out
+	
+	OK，大功告成！！！
+
+	
+			
+		
+测试集群工作状态的一些指令 ：
+bin/hdfs dfsadmin -report	 查看hdfs的各节点状态信息
+
+
+bin/hdfs haadmin -getServiceState nn1		 获取一个namenode节点的HA状态
+
+sbin/hadoop-daemon.sh start namenode  单独启动一个namenode进程
+
+
+./hadoop-daemon.sh start zkfc   单独启动一个zkfc进程
+			
+			
+				
+			
+			
+	
+			
+		
+	
+
+
+
+ 

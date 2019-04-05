@@ -1,0 +1,103 @@
+http://hadoop101:50070/
+http://hadoop102:50070/
+http://hadoop103:8088/
+http://hadoop104:8088/
+
+
+集群：开启注意：
+在hadoop101(namenode)上启动hdfs(start-dfs.sh),会自动启动hadoop102上的namenode，同时启动5,6,7(dataname),因为配置了slave
+
+在hadoop103(resourcemanager)上启动yarn(start-yarn.sh)，会启动5,6,7上的nodemanager，因为配置了slave，但是不会自动启动hadoop104上的(resourcemanager)，
+所以手动启动yarn-daemon.sh start resourcemanager
+
+在hadoop103(HMaster)上启动HBse(start-hbase.sh)，会启动5,6,7上的HRegionServer,因为配置了regionservers，但是不会自动启动hadoop104上的(HMaster),
+所以手动启动hbase-daemon.sh start master
+
+关闭同样
+
+hadoop101
+	(3)---hdfs namenode -format
+	        scp -r tmp/ hadoop102:/home/gaoxiang/app/hadoop-2.7.2/
+		##也可以这样，建议hdfs namenode -bootstrapStandby在hadoop02
+	(4)---hdfs zkfc -formatZK ：这是不太清楚以后要不要启动
+	(5)---start-dfs.sh	
+
+hadoop102
+
+hadoop103
+	start-yarn.sh
+
+hadoop104
+	手动启动ResourceManager:
+		yarn-daemon.sh start resourcemanager=====
+	
+hadoop105
+	/home/gaoxiang/app/zookeeper-3.4.6/bin/zkServer.sh start
+	hadoop-daemon.sh start journalnode
+		
+hadoop106
+	/home/gaoxiang/app/zookeeper-3.4.6/bin/zkServer.sh start
+	hadoop-daemon.sh start journalnode
+		
+hadoop107
+	(1)---/home/gaoxiang/app/zookeeper-3.4.6/bin/zkServer.sh start
+	(2)---hadoop-daemon.sh start journalnode
+	
+
+journalnode第一次需手动启动，以后包含在start-dfs.sh中
+hdfs namenode -format秩序第一次格式化，以后不用
+
+只需第一次启动时操作：
+hdfs namenode -format
+	        scp -r tmp/ hadoop102:/home/gaoxiang/app/hadoop-2.7.2/
+		##也可以这样，建议hdfs namenode -bootstrapStandby在hadoop02
+
+	
+第二次启动：
+	/home/gaoxiang/app/zookeeper-3.4.6/bin/zkServer.sh start	
+	start-dfs.sh	
+	start-yarn.sh
+
+进程：
+hadoop101
+	2644 Jps
+	2260 NameNode
+	2566 DFSZKFailoverController
+
+hadoop102
+	2369 Jps
+	2194 NameNode
+	2300 DFSZKFailoverController
+
+hadoop103
+	2199 ResourceManager
+	2280 Jps
+
+hadoop104
+	2196 ResourceManager
+	2247 Jps
+
+hadoop105
+	2274 DataNode
+	2067 QuorumPeerMain
+	2372 JournalNode
+	2478 NodeManager
+	2607 Jps
+
+hadoop106
+	2480 NodeManager
+	2274 DataNode
+	2610 Jps
+	2373 JournalNode
+	2063 QuorumPeerMain
+
+hadoop107
+	2481 NodeManager
+	2611 Jps
+	2278 DataNode
+	2376 JournalNode
+	2063 QuorumPeerMain
+
+hdfs:	NameNode	DataNode		JournalNode(edit-log)
+zookeeper:	QuorumPeerMain	
+yarn:	ResourceManager	NodeManager
