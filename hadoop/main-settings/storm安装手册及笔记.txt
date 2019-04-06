@@ -1,0 +1,38 @@
+﻿1、安装一个zookeeper集群
+
+2、上传storm的安装包，解压
+
+3、修改配置文件storm.yaml
+
+#所使用的zookeeper集群主机
+storm.zookeeper.servers:
+     - "weekend05"
+     - "weekend06"
+     - "weekend07"
+
+#nimbus所在的主机名
+nimbus.host: "weekend05"
+
+supervisor.slots.ports
+-6701
+-6702
+-6703
+-6704
+-6705
+
+
+启动storm
+在nimbus主机上
+nohup ./storm nimbus 1>/dev/null 2>&1 &
+nohup ./storm ui 1>/dev/null 2>&1 &
+
+在supervisor主机上
+nohup ./storm supervisor 1>/dev/null 2>&1 &
+
+
+
+
+storm的深入学习：
+			分布式共享锁的实现
+			事务topology的实现机制及开发模式
+			在具体场景中的跟其他框架的整合（flume/activeMQ/kafka(分布式的消息队列系统)       /redis/hbase/mysql cluster）
